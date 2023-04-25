@@ -30,43 +30,48 @@ C_SRCDIRS += $(MIDDLEWARE_TFLM)/tensorflow/lite/experimental/microfrontend/lib \
   $(TFLM_THIRD_PARTY)/kissfft \
   $(wildcard $(TFLM_THIRD_PARTY)/kissfft/*/)
 
-
-PLATFORM_FLAGS = \
-  -fno-common \
-  -mexplicit-relocs \
-  -fno-builtin-printf \
-  -fno-exceptions \
+ADDITIONAL_DEFINES := \
   -DNMSIS_NN \
   -DTF_LITE_USE_GLOBAL_MIN \
   -DTF_LITE_USE_GLOBAL_MAX \
   -DTF_LITE_MCU_DEBUG_LOG \
   -DTF_LITE_USE_GLOBAL_CMATH_FUNCTIONS \
-  -D_DEFAULT_SOURCE \
-  -fno-unwind-tables \
-  -funsigned-char \
-  -Wvla \
-  -Wall \
-  -Wextra \
+  -D_DEFAULT_SOURCE
+
+CC_WARNINGS := \
   -Wsign-compare \
   -Wdouble-promotion \
   -Wshadow \
   -Wunused-variable \
-  -Wmissing-field-initializers \
-  -Wno-unused-parameter \
-  -Wno-write-strings \
   -Wunused-function \
-  -Wno-unused-function \
-  -fno-delete-null-pointer-checks \
-  -fomit-frame-pointer
+  -Wswitch \
+  -Wvla \
+  -Wall \
+  -Wextra \
+  -Wmissing-field-initializers \
+  -Wstrict-aliasing \
+  -Wno-unused-parameter
 
-CXXFLAGS += $(PLATFORM_FLAGS) \
+TFLM_COMMON_FLAGS = \
+  -mexplicit-relocs \
+  -fno-builtin-printf \
+  -fno-exceptions \
+  -fno-unwind-tables \
+  -funsigned-char \
+  -Wno-write-strings \
+  -fno-delete-null-pointer-checks \
+  -fomit-frame-pointer \
+  $(ADDITIONAL_DEFINES) \
+  $(CC_WARNINGS)
+
+CXXFLAGS += $(TFLM_COMMON_FLAGS) \
+  -std=gnu++11 \
+  -fno-rtti \
   -fno-threadsafe-statics \
   -fno-use-cxa-atexit \
-  -fpermissive \
-  -fno-rtti \
-  --std=gnu++11
+  -fpermissive
 
-CFLAGS += $(PLATFORM_FLAGS)
+CFLAGS += $(TFLM_COMMON_FLAGS)
 
 LDFLAGS += \
   -lstdc++ \
