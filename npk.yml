@@ -1,0 +1,68 @@
+## Package Base Information
+name: mwp-nsdk_tflm
+owner: nuclei
+description: tflite-micro component for nuclei sdk
+type: mwp
+version: 0.1.0
+keywords:
+  - tflite-micro
+  - ai
+license: Apache-2.0
+homepage: https://github.com/Nuclei-Software/tflm
+
+dependencies:
+  - name: sdk-nuclei_sdk
+    version: 0.4.0
+
+packinfo:
+  name: tflite-micro for nuclei sdk
+  doc:
+    website: https://github.com/Nuclei-Software/tflm
+    usermanual:
+
+setconfig:
+  - config: nmsislibsel
+    value: nmsis_nn
+  - config: stdclib
+    value: newlib_small
+
+## Source Code Management
+codemanage:
+  installdir: tflm
+  copyfiles:
+    - path: ["tensorflow/", "third_party/"]
+  incdirs:
+    - path: ["./", "third_party/flatbuffers/include", "third_party/kissfft"]
+    - path: ["third_party/gemmlowp", "third_party/ruy"]
+  # required latest Nuclei Studio NPK to support excludefiles
+  excludefiles:
+    - path: []
+
+## Build Configuration
+buildconfig:
+  - type: gcc
+    description: Nuclei GNU Toolchain
+    cross_prefix: riscv-nuclei-elf- # optional
+    common_flags: # flags need to be combined together across all packages
+      - flags: >-
+          -fno-common -mexplicit-relocs -fno-builtin-printf -fno-exceptions
+          -fno-unwind-tables -funsigned-char -Wno-write-strings
+          -fno-delete-null-pointer-checks -fomit-frame-pointer
+    ldflags:
+      - flags: -lm
+      - flags: -lstdc++
+    cflags:                              # <OPTIONAL> C编译选项，留空表示没有任何选项
+    asmflags:                            # <OPTIONAL> ASM编译选项，留空表示没有任何选项
+    cxxflags:
+      - flags: -fno-threadsafe-statics
+      - flags: -fno-use-cxa-atexit
+      - flags: -fpermissive
+      - flags: -fno-rtti
+      - flags: --std=gnu++11
+    common_defines:                        # <OPTIONAL> 通用的宏定义
+      - defines: NMSIS_NN
+      - defines: TF_LITE_USE_GLOBAL_MIN
+      - defines: TF_LITE_USE_GLOBAL_MAX
+      - defines: TF_LITE_MCU_DEBUG_LOG
+      - defines: TF_LITE_USE_GLOBAL_CMATH_FUNCTIONS
+      - defines: _DEFAULT_SOURCE

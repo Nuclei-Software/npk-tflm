@@ -7,9 +7,7 @@ INCDIRS += $(MIDDLEWARE_TFLM) \
   $(TFLM_THIRD_PARTY)/gemmlowp \
   $(TFLM_THIRD_PARTY)/flatbuffers/include \
   $(TFLM_THIRD_PARTY)/ruy \
-  $(TFLM_THIRD_PARTY)/kissfft \
-  $(MIDDLEWARE_TFLM)/tensorflow/lite/micro
-
+  $(TFLM_THIRD_PARTY)/kissfft
 
 CXX_SRCDIRS += $(MIDDLEWARE_TFLM)/tensorflow/lite/core/api \
   $(MIDDLEWARE_TFLM)/tensorflow/lite/core/c \

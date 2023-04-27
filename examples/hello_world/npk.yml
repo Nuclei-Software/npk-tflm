@@ -1,0 +1,27 @@
+## Package Base Information
+name: app-nsdk_tflm_hello_world
+owner: nuclei
+description: tflite-micro hello world example for nuclei sdk
+category: tflm application
+type: app
+version: 0.1.0
+keywords:
+  - tflite-micro
+  - ai
+  - hello_world
+license: Apache-2.0
+homepage: https://github.com/Nuclei-Software/tflm
+
+dependencies:
+  - name: sdk-nuclei_sdk
+  - name: mwp-nsdk_tflm
+
+## Source Code Management
+codemanage:
+  copyfiles:
+    - path:  ["*.cc", "models/"]
+  incdirs:
+    - path: ["models/", "./"]
+  # required latest Nuclei Studio NPK to support excludefiles
+  excludefiles:
+    - path: []
