@@ -1,4 +1,4 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2023 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,11 +13,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef TENSORFLOW_LITE_MICRO_EXAMPLES_MAGIC_WAND_OUTPUT_HANDLER_H_
-#define TENSORFLOW_LITE_MICRO_EXAMPLES_MAGIC_WAND_OUTPUT_HANDLER_H_
+#include "tensorflow/lite/kernels/internal/tensor_ctypes.h"
 
-#include "tensorflow/lite/c/common.h"
+#include <vector>
 
-void HandleOutput(int kind);
+namespace tflite {
 
-#endif  // TENSORFLOW_LITE_MICRO_EXAMPLES_MAGIC_WAND_OUTPUT_HANDLER_H_
+RuntimeShape GetTensorShape(const TfLiteTensor* tensor) {
+  if (tensor == nullptr) {
+    return RuntimeShape();
+  }
+
+  TfLiteIntArray* dims = tensor->dims;
+  const int dims_size = dims->size;
+  const int32_t* dims_data = reinterpret_cast<const int32_t*>(dims->data);
+  return RuntimeShape(dims_size, dims_data);
+}
+
+RuntimeShape GetTensorShape(std::vector<int32_t> data) {
+  return RuntimeShape(data.size(), data.data());
+}
+
+}  // namespace tflite

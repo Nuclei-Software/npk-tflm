@@ -8,7 +8,7 @@ INCDIRS = . inc
 
 MIDDLEWARE := tflm
 
-NMSIS_LIB := nmsis_nn nmsis_dsp
+NMSIS_LIB := nmsis_nn
 
 COMMON_FLAGS := -O2
 

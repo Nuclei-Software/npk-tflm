@@ -15,17 +15,25 @@ limitations under the License.
 
 #include <math.h>
 
-#include "tensorflow/lite/micro/all_ops_resolver.h"
+#include "tensorflow/lite/core/c/common.h"
 #include "models/hello_world_float_model_data.h"
+#include "models/hello_world_int8_model_data.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_log.h"
+#include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
+#include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
-int LoadFloatModelAndPerformInference() {
-  // Define the input and the expected output
-  float x = 0.0f;
-  float y_true = sin(x);
+namespace {
+using HelloWorldOpResolver = tflite::MicroMutableOpResolver<1>;
 
+TfLiteStatus RegisterOps(HelloWorldOpResolver& op_resolver) {
+  TF_LITE_ENSURE_STATUS(op_resolver.AddFullyConnected());
+  return kTfLiteOk;
+}
+}  // namespace
+
+TfLiteStatus LoadFloatModelAndPerformInference() {
   // Map the model into a usable data structure. This doesn't involve any
   // copying or parsing, it's a very lightweight operation.
   const tflite::Model* model =
@@ -37,14 +45,16 @@ int LoadFloatModelAndPerformInference() {
         model->version(), TFLITE_SCHEMA_VERSION);
   }
 
-  // This pulls in all the operation implementations we need
-  tflite::AllOpsResolver resolver;
+  HelloWorldOpResolver op_resolver;
+  TF_LITE_ENSURE_STATUS(RegisterOps(op_resolver));
 
-  constexpr int kTensorArenaSize = 2056;
+  // Arena size just a round number. The exact arena usage can be determined
+  // using the RecordingMicroInterpreter.
+  constexpr int kTensorArenaSize = 3000;
   uint8_t tensor_arena[kTensorArenaSize];
 
   // Build an interpreter to run the model with
-  tflite::MicroInterpreter interpreter(model, resolver, tensor_arena,
+  tflite::MicroInterpreter interpreter(model, op_resolver, tensor_arena,
                                        kTensorArenaSize);
 
   // Allocate memory from the tensor_arena for the model's tensors
@@ -58,85 +68,109 @@ int LoadFloatModelAndPerformInference() {
 
   // Make sure the input has the properties we expect
   if (input == nullptr) {
-    MicroPrintf("Input tensor in null.");
-    return kTfLiteError;
-  }
-
-  // Place the quantized input in the model's input tensor
-  input->data.f[0] = x;
-
-  // Run the model and check that it succeeds
-  TfLiteStatus invoke_status = interpreter.Invoke();
-  if (invoke_status != kTfLiteOk) {
-    MicroPrintf("Interpreter invocation failed.");
+    MicroPrintf("Input tensor is null.");
     return kTfLiteError;
   }
 
   // Obtain a pointer to the output tensor.
   TfLiteTensor* output = interpreter.output(0);
 
-  // Obtain the quantized output from model's output tensor
-  float y_pred = output->data.f[0];
+  // Check if the output is within a small range of the expected output
+  float epsilon = 0.05f;
+
+  constexpr int kNumTestValues = 4;
+  float golden_inputs[kNumTestValues] = {0.f, 1.f, 3.f, 5.f};
+
+  for (int i = 0; i < kNumTestValues; ++i) {
+    input->data.f[0] = golden_inputs[i];
+    interpreter.Invoke();
+    float y_pred = output->data.f[0];
+    if (abs(sin(golden_inputs[i]) - y_pred) > epsilon) {
+      MicroPrintf(
+          "Difference between predicted and actual y value "
+          "is significant.");
+      return kTfLiteError;
+    }
+  }
+
+  return kTfLiteOk;
+}
+
+TfLiteStatus LoadQuantModelAndPerformInference() {
+  // Map the model into a usable data structure. This doesn't involve any
+  // copying or parsing, it's a very lightweight operation.
+  const tflite::Model* model =
+      ::tflite::GetModel(g_hello_world_int8_model_data);
+  if (model->version() != TFLITE_SCHEMA_VERSION) {
+    MicroPrintf(
+        "Model provided is schema version %d not equal "
+        "to supported version %d.\n",
+        model->version(), TFLITE_SCHEMA_VERSION);
+  }
+
+  HelloWorldOpResolver op_resolver;
+  TF_LITE_ENSURE_STATUS(RegisterOps(op_resolver));
+
+  // Arena size just a round number. The exact arena usage can be determined
+  // using the RecordingMicroInterpreter.
+  constexpr int kTensorArenaSize = 2056;
+  uint8_t tensor_arena[kTensorArenaSize];
+
+  // Build an interpreter to run the model with
+  tflite::MicroInterpreter interpreter(model, op_resolver, tensor_arena,
+                                       kTensorArenaSize);
+
+  // Allocate memory from the tensor_arena for the model's tensors
+  if (interpreter.AllocateTensors() != kTfLiteOk) {
+    MicroPrintf("Allocate tensor failed.");
+    return kTfLiteError;
+  }
+
+  // Obtain a pointer to the model's input tensor
+  TfLiteTensor* input = interpreter.input(0);
+
+  // Make sure the input has the properties we expect
+  if (input == nullptr) {
+    MicroPrintf("Input tensor is null.");
+    return kTfLiteError;
+  }
+
+  // Get the input quantization parameters
+  float input_scale = input->params.scale;
+  int input_zero_point = input->params.zero_point;
+
+  // Obtain a pointer to the output tensor.
+  TfLiteTensor* output = interpreter.output(0);
+
+  // Get the output quantization parameters
+  float output_scale = output->params.scale;
+  int output_zero_point = output->params.zero_point;
 
   // Check if the output is within a small range of the expected output
   float epsilon = 0.05f;
-  if (abs(y_true - y_pred) > epsilon) {
-    MicroPrintf(
-        "Difference between predicted and actual y value "
-        "is significant.");
-    return kTfLiteError;
-  }
 
-  // Run inference on several more values and confirm the expected outputs
-  x = 1.f;
-  y_true = sin(x);
-  input->data.f[0] = x;
-  interpreter.Invoke();
-  y_pred = output->data.f[0];
-  if (abs(y_true - y_pred) > epsilon) {
-    MicroPrintf(
-        "Difference between predicted and actual y value "
-        "is significant.");
-    return kTfLiteError;
-  }
+  constexpr int kNumTestValues = 4;
+  float golden_inputs[kNumTestValues] = {0.f, 1.f, 3.f, 5.f};
 
-  x = 3.f;
-  y_true = sin(x);
-  input->data.f[0] = x;
-  interpreter.Invoke();
-  y_pred = output->data.f[0];
-  if (abs(y_true - y_pred) > epsilon) {
-    MicroPrintf(
-        "Difference between predicted and actual y value "
-        "is significant.");
-    return kTfLiteError;
-  }
-
-  x = 5.f;
-  y_true = sin(x);
-  input->data.f[0] = x;
-  interpreter.Invoke();
-  y_pred = output->data.f[0];
-  if (abs(y_true - y_pred) > epsilon) {
-    MicroPrintf(
-        "Difference between predicted and actual y value "
-        "is significant.");
-    return kTfLiteError;
+  for (int i = 0; i < kNumTestValues; ++i) {
+    input->data.int8[0] = golden_inputs[i] / input_scale + input_zero_point;
+    interpreter.Invoke();
+    float y_pred = (output->data.int8[0] - output_zero_point) * output_scale;
+    if (abs(sin(golden_inputs[i]) - y_pred) > epsilon) {
+      MicroPrintf(
+          "Difference between predicted and actual y value "
+          "is significant.");
+      return kTfLiteError;
+    }
   }
 
   return kTfLiteOk;
 }
 
 int main(int argc, char* argv[]) {
-  int status = LoadFloatModelAndPerformInference();
-  // To be part of the unit test suite, each test file needs to print out
-  // either one of the following strings. These strings are required to
-  // be considered as a unit test for the tflm makefiles.
-  if (status == kTfLiteOk) {
-    MicroPrintf("~~~ALL TESTS PASSED~~~\n");
-    return kTfLiteOk;
-  } else {
-    MicroPrintf("~~~SOME TESTS FAILED~~~\n");
-    return kTfLiteError;
-  }
+  tflite::InitializeTarget();
+  TF_LITE_ENSURE_STATUS(LoadFloatModelAndPerformInference());
+  TF_LITE_ENSURE_STATUS(LoadQuantModelAndPerformInference());
+  MicroPrintf("~~~ALL TESTS PASSED~~~\n");
+  return kTfLiteOk;
 }

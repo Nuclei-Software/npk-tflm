@@ -1,4 +1,4 @@
-/* Copyright 2022 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2023 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -77,13 +77,14 @@ void EvalFloatSvdfReference(
 
 TfLiteStatus PrepareSvdf(TfLiteContext* context, TfLiteNode* node);
 
-// This is the most generic TfLiteRegistration. The actual supported types may
-// still be target dependent. The only requirement is that every implementation
-// (reference or optimized) must define this function.
-TfLiteRegistration Register_SVDF();
+// This is the most generic TfLiteRegistration_V1. The actual supported types
+// may still be target dependent. The only requirement is that every
+// implementation (reference or optimized) must define this function.
+TfLiteRegistration_V1 Register_SVDF();
 
-#if defined(HEXAGON) || defined(CMSIS_NN) || defined(NMSIS_NN)
-TfLiteRegistration Register_SVDF_INT8();
+#if defined(HEXAGON) || defined(CMSIS_NN) || defined(XTENSA) || defined(NMSIS_NN)
+
+TfLiteRegistration_V1 Register_SVDF_INT8();
 
 #else
 // Note that while this block gets used for both reference and optimized kernels
@@ -91,7 +92,7 @@ TfLiteRegistration Register_SVDF_INT8();
 // define fallback implementation that allow reference kernels to still be used
 // from applications that call a more specific kernel variant.
 
-inline TfLiteRegistration Register_SVDF_INT8() { return Register_SVDF(); }
+inline TfLiteRegistration_V1 Register_SVDF_INT8() { return Register_SVDF(); }
 
 #endif
 }  // namespace tflite

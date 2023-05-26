@@ -2,21 +2,21 @@
 
 TensorFlow Lite for Microcontrollers (TFLM)  is a port of TensorFlow Lite designed to run machine learning models on DSPs, microcontrollers and other devices with limited memory.
 
-Nuclei  have optimized kernel implementations and run the TFLM examples using software emulation or FPGA board.
+Nuclei have optimized kernel implementations and run the TFLM examples using software emulation or FPGA board.
 
 ## Introduction of Nuclei TFLM
 
-TFLM  has been ported to Nuclei platform, you can download the source code from website:
+TFLM  has been ported to Nuclei Platform, you can download the source code from website:
 
 ~~~shell
 git clone https://github.com/Nuclei-Software/tflm.git
 ~~~
 
-TFLM has four examples that help to demonstrate how tflm works:
+TFLM has three examples that help to demonstrate how tflm works:
 
 ~~~sh
 tflm/examples$ ls
-hello_world  magic_wand  micro_speech  person_detection
+hello_world  micro_speech  person_detection
 ~~~
 
 Here are two ways to use nuclei TFLM component:
@@ -24,9 +24,13 @@ Here are two ways to use nuclei TFLM component:
 1. Use terminal
 2. Use Nuclei Studio IDE
 
-## Use TFLM in Terminal
+## 1. Use TFLM in Terminal
 
-1. Get Nuclei subsystem SDK
+1. Get Nuclei SDK (v0.4.1)
+
+   ~~~sh
+   https://github.com/Nuclei-Software/nuclei-sdk/releases/tag/0.4.1
+   ~~~
 
 2. Get **tflm** zip package from https://github.com/Nuclei-Software/tflm, unzip it and put under  the *Components* folder of **$NUCLEI_SDK_ROOT**.
 
@@ -69,125 +73,126 @@ Here are two ways to use nuclei TFLM component:
    ....
    ~~~
 
-3. Setup Tools and Environment, you can refer to https://doc.nucleisys.com/nuclei_sdk/quickstart.html# for details.
+3. Setup Tools and Environment, details can refer to https://doc.nucleisys.com/nuclei_sdk/quickstart.html#.
 
 4. Build and run application.
 
-   Assume that you will run application on Nuclei nx900fd demosoc.
+   Assuming that run application on Nuclei nx900fd evalsoc.
 
    **run qemu (software emulation):**
 
    ~~~~shell
    cd Components/tflm/examples/xxx
-   make SOC=demosoc CORE=nx900 DOWNLOAD=ilm all
-   make SOC=demosoc CORE=nx900 DOWNLOAD=ilm run_qemu
+   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm clean
+   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm all
+   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm run_qemu
+
+   # select ARCH_EXT, for example, p, v, pv，use pure c version if not select ARCH_EXT
+   ## p: p extension present
+   ## v: v extension present
+   ## pv: p and v extension present
+   make SOC=evalsoc CORE=nx900fd ARCH_EXT=pv DOWNLOAD=ilm all
+   make SOC=evalsoc CORE=nx900fd ARCH_EXT=pv DOWNLOAD=ilm run_qemu
    ~~~~
 
    **run on FPGA Board:**
 
-   You need have correct FPGA Board and bitstream (contact Nuclei AE)
+   Correct FPGA Board and bitstream (contact Nuclei AE) should be prepared.
 
-   Configured the board and Open UART terminal （ default UART baudrate  is `115200`）on your PC，then download the executable file
+   Configure the board and open UART terminal (the default UART baudrate is `115200`)，then download the executable file.
 
    ~~~shell
    cd Components/tflm/examples/xxx
-   make SOC=demosoc CORE=nx900 DOWNLOAD=ilm all
-   make SOC=demosoc CORE=nx900 DOWNLOAD=ilm upload
+   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm clean all
+   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm upload
    ~~~
 
-   then，you can get the result in terminal.
+   Then, result will be printed in the terminal.
 
-   Here is the result of tflm/examples/magic_wand.
+   Here take the tflm/examples/person_detection as an example.
 
    ~~~log
-   Nuclei SDK Build Time: Apr 26 2023, 16:14:39
+   Nuclei SDK Build Time: May 26 2023, 11:05:15
    Download Mode: ILM
-   CPU Frequency 100610539 Hz
+   CPU Frequency 999999078 Hz
    CPU HartID: 0
-   RING:
-             *
-          *     *
-        *         *
-       *           *
-        *         *
-          *     *
-             *
-
-   RING:
-             *
-          *     *
-        *         *
-       *           *
-        *         *
-          *     *
-             *
-
-   RING:
-             *
-          *     *
-        *         *
-       *           *
-        *         *
-          *     *
-             *
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
+   person score:-72 no person score 72
    ~~~
 
-## Use TFLM in Nuclei Studio IDE
+**FAQs: Default ilm/dlm size in evalsoc is 64K/64K, need to change it to 512K to run these cases **
 
-1. Get Nuclei subsystem SDK
+If you met issue like this: `section \`.text' will not fit in region `ilm'`, this is caused by ilm size is not big enough to store the code, 64K is not enough to run this application, please use 512K, if you want to run on hardware, please make sure your hardware configured with 512K ILM/DLM.
 
-2. Download Nuclei Studio IDE from https://www.nucleisys.com/download.php, please refer to https://www.nucleisys.com/upload/files/doc/nucleistudio/Nuclei_Studio_User_Guide_202212.pdf to get the detailed usage of Nuclei Studio IDE.
+```shell
+# file: /path/to/nuclei_sdk/SoC/evalsoc/Board/nuclei_fpga_eval/Source/GCC/gcc_evalsoc_ilm.ld
+# Partial as follows:
 
-3. Go to the Nuclei Package Management page to import the zip package of the subsystem SDK until the Status is installed, you need to make sure that only one version of Nuclei SDK is installed and the version of SDK should bigger than 0.4.0
+OUTPUT_ARCH( "riscv" )
+
+ENTRY( _start )
+
+MEMORY
+{
+  ilm (rxa!w) : ORIGIN = 0x80000000, LENGTH = 512K  /* change 64K to 512K */
+  ram (wxa!r) : ORIGIN = 0x90000000, LENGTH = 512K  /* change 64K to 512K */
+}
+```
+
+## 2. Use TFLM in Nuclei Studio IDE
+
+1. Download Nuclei Studio IDE from https://www.nucleisys.com/download.php,
+
+   > Refer to the [Nuclei IDE User Guide](https://www.nucleisys.com/upload/files/doc/nucleistudio/Nuclei_Studio_User_Guide_202212.pdf ) if necessary.
+
+2. Open the Nuclei Studio IDE
+
+3. Download the zip package of Nuclei SDK,
+
+   > Make sure that only one version of Nuclei SDK can be installed and version of the SDK should no older than version 0.4.1.
 
    ![install_sdk](doc/images/install_sdk.png)
 
-4. Import the zip package of **tflm** until the Status is installed:
+4. Import the zip package of **tflm**
 
    ![install_tflm.png](doc/images/install_tflm.png)
 
 5. Create a new Nuclei RISC-V C/C++ Project.
 
-   - Choose the SoC, board and SDK, you need to select the SDK corresponding to the SoC of the current subsystem.
+   - Choose the SoC, board and SDK, select the SDK corresponding to the SoC of the current subsystem.
 
      ![create_project1](doc/images/create_project1.png)
 
-   - Use Filters to filter the keyword tflm to quickly find the example you want to run, and then set the configuration items and click Finish, you should configure it as follows:
+   - Select the example quickly by filtering keyword "tflm" , and then set the configuration items and click Finish, configurations are as follows:
 
      ![create_project2](doc/images/create_project2.png)
 
-     **Note:** If you meet memory overflow error when building project, you could use DDR download mode that will meet memory requirement.
-
-
-
-     The memory usage of four examples is shown as follows:
-
-     ~~~Note
-     Linking    :  hello_world.elf
-        text    data     bss     dec     hex filename
-      369854   57109    4984  431947   6974b hello_world.elf
-
-     Linking    :  magic_wand.elf
-        text    data     bss     dec     hex filename
-      101434   45989   67192  214615   34657 magic_wand.elf
-
-     Linking    :  micro_speech.elf
-        text    data     bss     dec     hex filename
-      108122   47661   19544  175327   2acdf micro_speech.elf
-
-     Linking    :  person_detection.elf
-        text    data     bss     dec     hex filename
-       90386  324365  144920  559671   88a37 person_detection.elf
-     ~~~
+**Note:** If you meet memory overflow error when building project, you could use DDR download mode that will meet memory requirement.
 
 
 
 6. Build and run application.
 
-   - If you want to build your application, you can easily click build icon:
+   - Click "build" icon to build the application:
 
      ![build_project](doc/images/build_project.png)
 
-   - If you want to run your application, you can easily click run icon:
+   - Click "run" icon to run the application:
 
      ![run_project_on_qemu](doc/images/run_project_on_qemu.png)
