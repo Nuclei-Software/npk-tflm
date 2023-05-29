@@ -4,13 +4,13 @@ owner: nuclei
 description: tflite-micro person detection example for nuclei sdk
 category: tflm application
 type: app
-version: 0.1.0
+version: 0.2.0
 keywords:
   - tflite-micro
   - ai
   - person_detection
 license: Apache-2.0
-homepage: https://github.com/Nuclei-Software/tflm
+homepage: https://github.com/Nuclei-Software/npk-tflm
 
 dependencies:
   - name: sdk-nuclei_sdk
