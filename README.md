@@ -1,38 +1,26 @@
-# TFLM Ported To Nuclei Platform
+# TFLM Ported To Nuclei RISC-V Processor
 
 TensorFlow Lite for Microcontrollers (TFLM)  is a port of TensorFlow Lite designed to run machine learning models on DSPs, microcontrollers and other devices with limited memory.
 
-Nuclei have optimized kernel implementations and run the TFLM examples using software emulation or FPGA board.
+Nuclei have optimized kernel implementations(main p/v extension) and run the TFLM examples using software emulation or FPGA board.
 
-## Introduction of Nuclei TFLM
+## Introduction of Nuclei Optimized TFLM
 
-TFLM  has been ported to Nuclei Platform, you can download the source code from website:
+TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate it in Nuclei SDK and also in official TFLM build system.
 
-~~~shell
-git clone https://github.com/Nuclei-Software/tflm.git
-~~~
+- If you want to use it in directly TFLM build system, please check this repo https://github.com/Nuclei-Software/tflite-micro/tree/nuclei/nsdk_0.4.1
+- If you want to use it in Nuclei SDK or Nuclei Studio as a software component, you can follow the following steps:
 
-TFLM has three examples that help to demonstrate how tflm works:
+**Here are two ways to use Nuclei SDK TFLM component:**
 
-~~~sh
-tflm/examples$ ls
-hello_world  micro_speech  person_detection
-~~~
-
-Here are two ways to use nuclei TFLM component:
-
-1. Use terminal
+1. Use Nuclei SDK in terminal
 2. Use Nuclei Studio IDE
 
-## 1. Use TFLM in Terminal
+### Use TFLM in Terminal
 
-1. Get Nuclei SDK (v0.4.1)
+1. Get Nuclei SDK (v0.4.1) from https://github.com/Nuclei-Software/nuclei-sdk/releases/tag/0.4.1
 
-   ~~~sh
-   https://github.com/Nuclei-Software/nuclei-sdk/releases/tag/0.4.1
-   ~~~
-
-2. Get **tflm** zip package from https://github.com/Nuclei-Software/tflm, unzip it and put under  the *Components* folder of **$NUCLEI_SDK_ROOT**.
+2. Get **tflm** zip package from https://github.com/Nuclei-Software/npk-tflm, unzip it and put under  the *Components* folder of **$NUCLEI_SDK_ROOT**.
 
    ~~~shell
    nuclei-sdk$ tree -L 2
@@ -54,7 +42,7 @@ Here are two ways to use nuclei TFLM component:
    │   ├── Makefile.rules
    │   └── Makefile.soc
    ├── Components                   # Put tflm here
-   │   └── tflm
+   │   └── tflm                     # Make sure structure like this tflm/examples
    ├── doc
    │   ├── Makefile
    │   ├── requirements.txt
@@ -73,7 +61,7 @@ Here are two ways to use nuclei TFLM component:
    ....
    ~~~
 
-3. Setup Tools and Environment, details can refer to https://doc.nucleisys.com/nuclei_sdk/quickstart.html#.
+3. Setup Tools and Environment, details can refer to https://doc.nucleisys.com/nuclei_sdk/quickstart.html.
 
 4. Build and run application.
 
@@ -155,7 +143,7 @@ MEMORY
 }
 ```
 
-## 2. Use TFLM in Nuclei Studio IDE
+### Use TFLM in Nuclei Studio IDE
 
 1. Download Nuclei Studio IDE from https://www.nucleisys.com/download.php,
 
@@ -183,9 +171,7 @@ MEMORY
 
      ![create_project2](doc/images/create_project2.png)
 
-**Note:** If you meet memory overflow error when building project, you could use DDR download mode that will meet memory requirement.
-
-
+**Note:** If you meet memory overflow error when building project, you could use DDR download mode(evalsoc using nuclei 600/900 processor support this mode) that will meet memory requirement.
 
 6. Build and run application.
 
