@@ -8,7 +8,7 @@ keywords:
   - tflite-micro
   - ai
 license: Apache-2.0
-homepage: https://github.com/Nuclei-Software/tflm
+homepage: https://github.com/Nuclei-Software/npk-tflm
 
 dependencies:
   - name: sdk-nuclei_sdk
@@ -17,7 +17,7 @@ dependencies:
 packinfo:
   name: tflite-micro for nuclei sdk
   doc:
-    website: https://github.com/Nuclei-Software/tflm
+    website: https://github.com/Nuclei-Software/npk-tflm
     usermanual:
 
 setconfig:
@@ -51,15 +51,15 @@ buildconfig:
     ldflags:
       - flags: -lm
       - flags: -lstdc++
-    cflags:                              # <OPTIONAL> C编译选项，留空表示没有任何选项
-    asmflags:                            # <OPTIONAL> ASM编译选项，留空表示没有任何选项
+    cflags:
+    asmflags:
     cxxflags:
       - flags: -fno-threadsafe-statics
       - flags: -fno-use-cxa-atexit
       - flags: -fpermissive
       - flags: -fno-rtti
       - flags: --std=gnu++11
-    common_defines:                        # <OPTIONAL> 通用的宏定义
+    common_defines:
       - defines: NMSIS_NN
       - defines: TF_LITE_USE_GLOBAL_MIN
       - defines: TF_LITE_USE_GLOBAL_MAX
