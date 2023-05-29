@@ -2,7 +2,7 @@
 
 TensorFlow Lite for Microcontrollers (TFLM)  is a port of TensorFlow Lite designed to run machine learning models on DSPs, microcontrollers and other devices with limited memory.
 
-Nuclei have optimized kernel implementations(main p/v extension) and run the TFLM examples using software emulation or FPGA board.
+We have done TFLM NN kernel optimized implementations(main p/v extension) for Nuclei RISC-V Processor, and you can run the TFLM examples using software emulation or FPGA board.
 
 ## Introduction of Nuclei Optimized TFLM
 
@@ -13,8 +13,8 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
 
 **Here are two ways to use Nuclei SDK TFLM component:**
 
-1. Use Nuclei SDK in terminal
-2. Use Nuclei Studio IDE
+1. Use Nuclei SDK 0.4.1 in terminal
+2. Use Nuclei Studio IDE 2022.12
 
 ### Use TFLM in Terminal
 
@@ -65,7 +65,7 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
 
 4. Build and run application.
 
-   Assuming that run application on Nuclei nx900fd evalsoc.
+   Assuming that run application on nuclei evalsoc with nx900fd cpu.
 
    **run qemu (software emulation):**
 
@@ -75,7 +75,7 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
    make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm all
    make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm run_qemu
 
-   # select ARCH_EXT, for example, p, v, pv，use pure c version if not select ARCH_EXT
+   # select ARCH_EXT, for example, p, v, pv, use pure c version if not select ARCH_EXT
    ## p: p extension present
    ## v: v extension present
    ## pv: p and v extension present
@@ -85,9 +85,9 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
 
    **run on FPGA Board:**
 
-   Correct FPGA Board and bitstream (contact Nuclei AE) should be prepared.
+   Use Correct FPGA Board and bitstream(contact Nuclei AE) should be prepared(512K ILM/DLM bitstream is preferred).
 
-   Configure the board and open UART terminal (the default UART baudrate is `115200`)，then download the executable file.
+   Configure the board and open UART terminal (the default UART baudrate is `115200`), then download the executable file.
 
    ~~~shell
    cd Components/tflm/examples/xxx
@@ -97,7 +97,7 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
 
    Then, result will be printed in the terminal.
 
-   Here take the tflm/examples/person_detection as an example.
+   Here take the `tflm/examples/person_detection` as an example.
 
    ~~~log
    Nuclei SDK Build Time: May 26 2023, 11:05:15
@@ -124,9 +124,10 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
    person score:-72 no person score 72
    ~~~
 
-**FAQs: Default ilm/dlm size in evalsoc is 64K/64K, need to change it to 512K to run these cases **
+**FAQs: Default ilm/dlm size in evalsoc is 64K/64K, need to change it to 512K to run these cases**
 
-If you met issue like this: `section \`.text' will not fit in region `ilm'`, this is caused by ilm size is not big enough to store the code, 64K is not enough to run this application, please use 512K, if you want to run on hardware, please make sure your hardware configured with 512K ILM/DLM.
+If you met issue like this: `section .text will not fit in region ilm`, this is caused by ilm size is not big enough to store the code, 64K is not enough to run this application,
+please use 512K, **if you want to run on hardware, please make sure your cpu bitstream configured with 512K ILM/DLM**.
 
 ```shell
 # file: /path/to/nuclei_sdk/SoC/evalsoc/Board/nuclei_fpga_eval/Source/GCC/gcc_evalsoc_ilm.ld
@@ -145,13 +146,13 @@ MEMORY
 
 ### Use TFLM in Nuclei Studio IDE
 
-1. Download Nuclei Studio IDE from https://www.nucleisys.com/download.php,
+1. Download Nuclei Studio IDE 2022.12 from https://www.nucleisys.com/download.php
 
-   > Refer to the [Nuclei IDE User Guide](https://www.nucleisys.com/upload/files/doc/nucleistudio/Nuclei_Studio_User_Guide_202212.pdf ) if necessary.
+   > Refer to the [Nuclei IDE User Guide](https://www.nucleisys.com/upload/files/doc/nucleistudio/Nuclei_Studio_User_Guide_202212.pdf) if necessary.
 
 2. Open the Nuclei Studio IDE
 
-3. Download the zip package of Nuclei SDK,
+3. Download the zip package of Nuclei SDK
 
    > Make sure that only one version of Nuclei SDK can be installed and version of the SDK should no older than version 0.4.1.
 
@@ -161,13 +162,13 @@ MEMORY
 
    ![install_tflm.png](doc/images/install_tflm.png)
 
-5. Create a new Nuclei RISC-V C/C++ Project.
+5. Create a new Nuclei RISC-V C/C++ Project
 
    - Choose the SoC, board and SDK, select the SDK corresponding to the SoC of the current subsystem.
 
      ![create_project1](doc/images/create_project1.png)
 
-   - Select the example quickly by filtering keyword "tflm" , and then set the configuration items and click Finish, configurations are as follows:
+   - Select the example quickly by filtering keyword "tflm", and then set the configuration items and click Finish, configurations are as follows:
 
      ![create_project2](doc/images/create_project2.png)
 
@@ -175,10 +176,10 @@ MEMORY
 
 6. Build and run application.
 
-   - Click "build" icon to build the application:
+   - Click "build" icon to build the application
 
      ![build_project](doc/images/build_project.png)
 
-   - Click "run" icon to run the application:
+   - Click "run" icon to run the application
 
      ![run_project_on_qemu](doc/images/run_project_on_qemu.png)
