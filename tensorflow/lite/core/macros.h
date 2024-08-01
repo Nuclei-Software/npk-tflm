@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 // This provides utility macros and functions that are inherently platform
-// specific.
+// specific or shared across runtime & converter.
 #ifndef TENSORFLOW_LITE_CORE_MACROS_H_
 #define TENSORFLOW_LITE_CORE_MACROS_H_
 

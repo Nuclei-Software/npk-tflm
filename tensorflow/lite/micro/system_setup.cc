@@ -14,18 +14,12 @@ limitations under the License.
 ==============================================================================*/
 
 #include "tensorflow/lite/micro/system_setup.h"
-#include  "nuclei_sdk_soc.h"
 
 namespace tflite {
 
 // To add an equivalent function for your own platform, create your own
 // implementation file, and place it in a subfolder named after the target. See
 // tensorflow/lite/micro/debug_log.cc for a similar example.
-void InitializeTarget() {
-#ifdef __riscv_vector
-    // turn on vector
-    __RV_CSR_SET(CSR_MSTATUS, 0x200);
-#endif
-}
+void InitializeTarget() {}
 
 }  // namespace tflite

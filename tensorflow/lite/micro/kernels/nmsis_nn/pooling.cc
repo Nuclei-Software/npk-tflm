@@ -94,14 +94,14 @@ void AverageEvalQuantized(TfLiteContext* context, const TfLiteNode* node,
   if (input->type == kTfLiteInt8) {
     TFLITE_DCHECK_EQ(
         riscv_avgpool_s8(&ctx, &pool_params, &input_dims,
-                       micro::GetTensorData<int8_t>(input), &filter_dims,
-                       &output_dims, micro::GetTensorData<int8_t>(output)),
+                         micro::GetTensorData<int8_t>(input), &filter_dims,
+                         &output_dims, micro::GetTensorData<int8_t>(output)),
         RISCV_NMSIS_NN_SUCCESS);
   } else {
     TFLITE_DCHECK_EQ(
         riscv_avgpool_s16(&ctx, &pool_params, &input_dims,
-                        micro::GetTensorData<int16_t>(input), &filter_dims,
-                        &output_dims, micro::GetTensorData<int16_t>(output)),
+                          micro::GetTensorData<int16_t>(input), &filter_dims,
+                          &output_dims, micro::GetTensorData<int16_t>(output)),
         RISCV_NMSIS_NN_SUCCESS);
   }
 }
@@ -130,14 +130,14 @@ TfLiteStatus MaxEvalQuantized(TfLiteContext* context, const TfLiteNode* node,
   if (input->type == kTfLiteInt8) {
     TFLITE_DCHECK_EQ(
         riscv_max_pool_s8(&ctx, &pool_params, &input_dims,
-                        micro::GetTensorData<int8_t>(input), &filter_dims,
-                        &output_dims, micro::GetTensorData<int8_t>(output)),
+                          micro::GetTensorData<int8_t>(input), &filter_dims,
+                          &output_dims, micro::GetTensorData<int8_t>(output)),
         RISCV_NMSIS_NN_SUCCESS);
   } else {
     TFLITE_DCHECK_EQ(
         riscv_max_pool_s16(&ctx, &pool_params, &input_dims,
-                         micro::GetTensorData<int16_t>(input), &filter_dims,
-                         &output_dims, micro::GetTensorData<int16_t>(output)),
+                           micro::GetTensorData<int16_t>(input), &filter_dims,
+                           &output_dims, micro::GetTensorData<int16_t>(output)),
         RISCV_NMSIS_NN_SUCCESS);
   }
 
@@ -319,27 +319,27 @@ TfLiteStatus MaxEvalInt16(TfLiteContext* context, TfLiteNode* node) {
 
 }  // namespace
 
-TfLiteRegistration_V1 Register_AVERAGE_POOL_2D_INT8() {
+TFLMRegistration Register_AVERAGE_POOL_2D_INT8() {
   return tflite::micro::RegisterOp(Init, AveragePrepare, AverageEvalInt8);
 }
 
-TfLiteRegistration_V1 Register_AVERAGE_POOL_2D_INT16() {
+TFLMRegistration Register_AVERAGE_POOL_2D_INT16() {
   return tflite::micro::RegisterOp(Init, AveragePrepare, AverageEvalInt16);
 }
 
-TfLiteRegistration_V1 Register_AVERAGE_POOL_2D() {
+TFLMRegistration Register_AVERAGE_POOL_2D() {
   return tflite::micro::RegisterOp(Init, AveragePrepare, AverageEval);
 }
 
-TfLiteRegistration_V1 Register_MAX_POOL_2D_INT8() {
+TFLMRegistration Register_MAX_POOL_2D_INT8() {
   return tflite::micro::RegisterOp(Init, MaxPrepare, MaxEvalInt8);
 }
 
-TfLiteRegistration_V1 Register_MAX_POOL_2D_INT16() {
+TFLMRegistration Register_MAX_POOL_2D_INT16() {
   return tflite::micro::RegisterOp(Init, MaxPrepare, MaxEvalInt16);
 }
 
-TfLiteRegistration_V1 Register_MAX_POOL_2D() {
+TFLMRegistration Register_MAX_POOL_2D() {
   return tflite::micro::RegisterOp(Init, MaxPrepare, MaxEval);
 }
 

@@ -301,6 +301,15 @@ TfLiteStatus PrepareAdd(TfLiteContext* context, TfLiteNode* node) {
       micro_context->AllocateTempOutputTensor(node, kOutputTensor);
   TF_LITE_ENSURE(context, output != nullptr);
 
+  TF_LITE_ENSURE_EQ(context, input1->type, output->type);
+  TF_LITE_ENSURE_MSG(
+      context,
+      input1->type == kTfLiteFloat32 || input1->type == kTfLiteInt32 ||
+          input1->type == kTfLiteInt16 || input1->type == kTfLiteInt8,
+      "Input data type not supported");
+  TF_LITE_ENSURE_MSG(context, input1->type == input2->type,
+                     "Hybrid models are not supported on TFLite Micro.");
+
   if (input1->type == kTfLiteInt16) {
     TF_LITE_ENSURE_EQ(context, input1->params.zero_point, 0);
     TF_LITE_ENSURE_EQ(context, input2->params.zero_point, 0);
@@ -396,15 +405,15 @@ TfLiteStatus EvalAddInt16(TfLiteContext* context, TfLiteNode* node) {
   return kTfLiteOk;
 }
 
-TfLiteRegistration_V1 Register_ADD() {
+TFLMRegistration Register_ADD() {
   return tflite::micro::RegisterOp(InitAdd, PrepareAdd, EvalAdd);
 }
 
-TfLiteRegistration_V1 Register_ADD_INT8() {
+TFLMRegistration Register_ADD_INT8() {
   return tflite::micro::RegisterOp(InitAdd, PrepareAdd, EvalAddInt8);
 }
 
-TfLiteRegistration_V1 Register_ADD_INT16() {
+TFLMRegistration Register_ADD_INT16() {
   return tflite::micro::RegisterOp(InitAdd, PrepareAdd, EvalAddInt16);
 }
 
