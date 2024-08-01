@@ -4,7 +4,7 @@ owner: nuclei
 description: tflite-micro micro speech example for nuclei sdk
 category: tflm application
 type: app
-version: 0.2.0
+version: 0.3.0
 keywords:
   - tflite-micro
   - ai
@@ -19,9 +19,9 @@ dependencies:
 ## Source Code Management
 codemanage:
   copyfiles:
-    - path:  ["*.cc", "*.h", "testdata/", "micro_features/"]
+    - path:  ["*.cc", "*.h", "models/", "testdata/"]
   incdirs:
-    - path: ["./", "testdata/", "micro_features/"]
+    - path: ["models/", "./", "testdata/"]
   # required latest Nuclei Studio NPK to support excludefiles
   excludefiles:
     - path: []

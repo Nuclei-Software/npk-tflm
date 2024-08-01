@@ -3,7 +3,7 @@ name: mwp-nsdk_tflm
 owner: nuclei
 description: tflite-micro component for nuclei sdk
 type: mwp
-version: 0.2.0
+version: 0.3.0
 keywords:
   - tflite-micro
   - ai
@@ -12,7 +12,7 @@ homepage: https://github.com/Nuclei-Software/npk-tflm
 
 dependencies:
   - name: sdk-nuclei_sdk
-    version: 0.4.1
+    version: 0.6.0
 
 packinfo:
   name: tflite-micro for nuclei sdk
@@ -30,7 +30,7 @@ setconfig:
 codemanage:
   installdir: tflm
   copyfiles:
-    - path: ["tensorflow/", "third_party/"]
+    - path: ["tensorflow/", "third_party/", "signal/"]
   incdirs:
     - path: ["./", "third_party/flatbuffers/include", "third_party/kissfft"]
     - path: ["third_party/gemmlowp", "third_party/ruy"]
@@ -42,7 +42,7 @@ codemanage:
 buildconfig:
   - type: gcc
     description: Nuclei GNU Toolchain
-    cross_prefix: riscv-nuclei-elf- # optional
+    cross_prefix: riscv64-unknown-elf- # optional
     common_flags: # flags need to be combined together across all packages
       - flags: >-
           -fno-common -mexplicit-relocs -fno-builtin-printf -fno-exceptions
@@ -65,4 +65,7 @@ buildconfig:
       - defines: TF_LITE_USE_GLOBAL_MAX
       - defines: TF_LITE_MCU_DEBUG_LOG
       - defines: TF_LITE_USE_GLOBAL_CMATH_FUNCTIONS
+      - defines: TF_LITE_STATIC_MEMORY
+      - defines: TF_LITE_DISABLE_X86_NEON
+      - defines: KERNELS_OPTIMIZED_FOR_SPEED
       - defines: _DEFAULT_SOURCE
