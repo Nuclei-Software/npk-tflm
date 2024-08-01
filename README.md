@@ -8,17 +8,17 @@ We have done TFLM NN kernel optimized implementations(main p/v extension) for Nu
 
 TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate it in Nuclei SDK and also in official TFLM build system.
 
-- If you want to use it in directly TFLM build system, please check this repo https://github.com/Nuclei-Software/tflite-micro/tree/nuclei/nsdk_0.4.1
+- If you want to use it in directly TFLM build system, please check this repo: <!-- TODO update url -->
 - If you want to use it in Nuclei SDK or Nuclei Studio as a software component, you can follow the following steps:
 
 **Here are two ways to use Nuclei SDK TFLM component:**
 
-1. Use Nuclei SDK 0.4.1 in terminal
-2. Use Nuclei Studio IDE 2022.12
+1. Use Nuclei SDK 0.6.0 in terminal
+2. Use Nuclei Studio IDE 2024.06
 
 ### Use TFLM in Terminal
 
-1. Get Nuclei SDK (v0.4.1) from https://github.com/Nuclei-Software/nuclei-sdk/releases/tag/0.4.1
+1. Get Nuclei SDK (v0.6.0) from https://github.com/Nuclei-Software/nuclei-sdk/releases/tag/0.6.0
 
 2. Get **tflm** zip package from https://github.com/Nuclei-Software/npk-tflm, unzip it and put under  the *Components* folder of **$NUCLEI_SDK_ROOT**.
 
@@ -26,36 +26,42 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
    nuclei-sdk$ tree -L 2
    .
    ├── application
-   │   ├── baremetal
-   │   ├── freertos
-   │   ├── rtthread
-   │   └── ucosii
+   │   ├── baremetal
+   │   ├── freertos
+   │   ├── rtthread
+   │   ├── threadx
+   │   └── ucosii
    ├── Build
-   │   ├── gmsl
-   │   ├── Makefile.base
-   │   ├── Makefile.components
-   │   ├── Makefile.conf
-   │   ├── Makefile.core
-   │   ├── Makefile.files
-   │   ├── Makefile.misc
-   │   ├── Makefile.rtos
-   │   ├── Makefile.rules
-   │   └── Makefile.soc
-   ├── Components                   # Put tflm here
-   │   └── tflm                     # Make sure structure like this tflm/examples
+   │   ├── gmsl
+   │   ├── Makefile.base
+   │   ├── Makefile.components
+   │   ├── Makefile.conf
+   │   ├── Makefile.core
+   │   ├── Makefile.files
+   │   ├── Makefile.misc
+   │   ├── Makefile.rtos
+   │   ├── Makefile.rules
+   │   ├── Makefile.soc
+   │   ├── Makefile.toolchain
+   │   └── toolchain
+   ├── Components
+   │   ├── profiling
+   │   └── tflm
    ├── doc
-   │   ├── Makefile
-   │   ├── requirements.txt
-   │   └── source
+   │   ├── Makefile
+   │   ├── requirements.txt
+   │   └── source
+   ├── ideprojects
+   │   └── iar
    ├── LICENSE
    ├── Makefile
    ├── NMSIS
-   │   ├── build.mk
-   │   ├── Core
-   │   ├── DSP
-   │   ├── Library
-   │   ├── NN
-   │   └── npk.yml
+   │   ├── build.mk
+   │   ├── Core
+   │   ├── DSP
+   │   ├── Library
+   │   ├── NN
+   │   └── npk.yml
    ├── NMSIS_VERSION
    ├── npk.yml
    ....
@@ -146,15 +152,15 @@ MEMORY
 
 ### Use TFLM in Nuclei Studio IDE
 
-1. Download Nuclei Studio IDE 2022.12 from https://www.nucleisys.com/download.php
+1. Download Nuclei Studio IDE 2024.06 from https://www.nucleisys.com/download.php
 
-   > Refer to the [Nuclei IDE User Guide](https://www.nucleisys.com/upload/files/doc/nucleistudio/Nuclei_Studio_User_Guide_202212.pdf) if necessary.
+   > Refer to the [Nuclei IDE User Guide](https://download.nucleisys.com/upload/files/doc/nucleistudio/Nuclei_Studio_User_Guide.202406.pdf) if necessary.
 
 2. Open the Nuclei Studio IDE
 
 3. Download the zip package of Nuclei SDK
 
-   > Make sure that only one version of Nuclei SDK can be installed and version of the SDK should no older than version 0.4.1.
+   > Make sure the version of the SDK should be 0.6.0.
 
    ![install_sdk](doc/images/install_sdk.png)
 
@@ -168,7 +174,7 @@ MEMORY
 
      ![create_project1](doc/images/create_project1.png)
 
-   - Select the example quickly by filtering keyword "tflm", and then set the configuration items and click Finish, configurations are as follows:
+   - Select the example quickly by filtering category "tflm application", and then set the configuration items and click Finish, configurations are as follows:
 
      ![create_project2](doc/images/create_project2.png)
 
