@@ -22,7 +22,11 @@ CXX_SRCDIRS += $(MIDDLEWARE_TFLM)/tensorflow/lite/core/api \
   $(MIDDLEWARE_TFLM)/tensorflow/lite/micro/tflite_bridge \
   $(MIDDLEWARE_TFLM)/tensorflow/lite/micro/kernels \
   $(MIDDLEWARE_TFLM)/tensorflow/lite/micro/kernels/nmsis_nn \
-  $(MIDDLEWARE_TFLM)/tensorflow/lite/micro/memory_planner
+  $(MIDDLEWARE_TFLM)/tensorflow/lite/micro/memory_planner \
+  $(MIDDLEWARE_TFLM)/tensorflow/compiler/mlir/lite/schema \
+  $(MIDDLEWARE_TFLM)/signal/micro/kernels \
+  $(MIDDLEWARE_TFLM)/signal/src \
+  $(MIDDLEWARE_TFLM)/signal/src/kiss_fft_wrappers
 
 C_SRCDIRS += $(MIDDLEWARE_TFLM)/tensorflow/lite/experimental/microfrontend/lib \
   $(TFLM_THIRD_PARTY)/kissfft \
@@ -34,6 +38,9 @@ ADDITIONAL_DEFINES := \
   -DTF_LITE_USE_GLOBAL_MAX \
   -DTF_LITE_MCU_DEBUG_LOG \
   -DTF_LITE_USE_GLOBAL_CMATH_FUNCTIONS \
+  -DTF_LITE_STATIC_MEMORY \
+  -DTF_LITE_DISABLE_X86_NEON \
+  -DKERNELS_OPTIMIZED_FOR_SPEED \
   -D_DEFAULT_SOURCE
 
 CC_WARNINGS := \

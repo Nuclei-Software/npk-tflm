@@ -2,9 +2,9 @@ TARGET = person_detection
 
 NUCLEI_SDK_ROOT = ../../../..
 
-SRCDIRS = . src
+SRCDIRS = .
 
-INCDIRS = . inc
+INCDIRS = .
 
 MIDDLEWARE := tflm
 

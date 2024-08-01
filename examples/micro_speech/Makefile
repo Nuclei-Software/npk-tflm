@@ -2,9 +2,9 @@ TARGET = micro_speech
 
 NUCLEI_SDK_ROOT = ../../../..
 
-SRCDIRS = . src micro_features testdata
+SRCDIRS = . models testdata
 
-INCDIRS = . inc micro_features testdata
+INCDIRS = . mdoels testdata
 
 MIDDLEWARE := tflm
 
