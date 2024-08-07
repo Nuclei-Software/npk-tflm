@@ -8,7 +8,7 @@ We have done TFLM NN kernel optimized implementations(main p/v extension) for Nu
 
 TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate it in Nuclei SDK and also in official TFLM build system.
 
-- If you want to use it in directly TFLM build system, please check this repo: <!-- TODO update url -->
+- If you want to use it in directly TFLM build system, please check this repo: https://github.com/Nuclei-Software/tflite-micro/tree/nuclei/nsdk_0.6.0
 - If you want to use it in Nuclei SDK or Nuclei Studio as a software component, you can follow the following steps:
 
 **Here are two ways to use Nuclei SDK TFLM component:**
