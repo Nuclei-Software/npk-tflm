@@ -13,8 +13,8 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
 
 **Here are two ways to use Nuclei SDK TFLM component:**
 
-1. Use Nuclei SDK 0.6.0 in terminal
-2. Use Nuclei Studio IDE 2024.06
+1. Use **Nuclei SDK 0.6.0** in terminal
+2. Use **Nuclei Studio IDE 2024.06**
 
 ### Use TFLM in Terminal
 
@@ -81,12 +81,12 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
    make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm all
    make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm run_qemu
 
-   # select ARCH_EXT, for example, p, v, pv, use pure c version if not select ARCH_EXT
-   ## p: p extension present
+   # select ARCH_EXT, for example, _xxldsp, v, v_xxldsp, use pure c version if not select ARCH_EXT
+   ## _xxldsp: Nuclei DSP extension present
    ## v: v extension present
-   ## pv: p and v extension present
-   make SOC=evalsoc CORE=nx900fd ARCH_EXT=pv DOWNLOAD=ilm all
-   make SOC=evalsoc CORE=nx900fd ARCH_EXT=pv DOWNLOAD=ilm run_qemu
+   ## v_xxldsp: Nuclei DSP and v extension present
+   make SOC=evalsoc CORE=nx900fd ARCH_EXT=v_xxldsp DOWNLOAD=ilm all
+   make SOC=evalsoc CORE=nx900fd ARCH_EXT=v_xxldsp DOWNLOAD=ilm run_qemu
    ~~~~
 
    **run on FPGA Board:**
