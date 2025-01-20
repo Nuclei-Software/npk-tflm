@@ -70,7 +70,7 @@ TFLM_COMMON_FLAGS = \
   $(CC_WARNINGS)
 
 CXXFLAGS += $(TFLM_COMMON_FLAGS) \
-  -std=gnu++11 \
+  -std=gnu++17 \
   -fno-rtti \
   -fno-threadsafe-statics \
   -fno-use-cxa-atexit \
