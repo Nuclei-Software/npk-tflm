@@ -8,17 +8,17 @@ We have done TFLM NN kernel optimized implementations(main p/v extension) for Nu
 
 TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate it in Nuclei SDK and also in official TFLM build system.
 
-- If you want to use it in directly TFLM build system, please check this repo: https://github.com/Nuclei-Software/tflite-micro/tree/nuclei/nsdk_0.6.0
+- If you want to use it in directly TFLM build system, please check this repo: https://github.com/Nuclei-Software/tflite-micro/tree/nuclei/nsdk_0.7.1
 - If you want to use it in Nuclei SDK or Nuclei Studio as a software component, you can follow the following steps:
 
 **Here are two ways to use Nuclei SDK TFLM component:**
 
-1. Use **Nuclei SDK 0.6.0** in terminal
+1. Use **Nuclei SDK 0.7.1** in terminal
 2. Use **Nuclei Studio IDE 2024.06**
 
 ### Use TFLM in Terminal
 
-1. Get Nuclei SDK (v0.6.0) from https://github.com/Nuclei-Software/nuclei-sdk/releases/tag/0.6.0
+1. Get Nuclei SDK (v0.7.1) from https://github.com/Nuclei-Software/nuclei-sdk/releases/tag/0.7.1
 
 2. Get **tflm** zip package from https://github.com/Nuclei-Software/npk-tflm, unzip it and put under  the *Components* folder of **$NUCLEI_SDK_ROOT**.
 
@@ -77,16 +77,13 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
 
    ~~~~shell
    cd Components/tflm/examples/xxx
-   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm clean
-   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm all
-   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm run_qemu
+   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm clean all run_qemu
 
    # select ARCH_EXT, for example, _xxldsp, v, v_xxldsp, use pure c version if not select ARCH_EXT
    ## _xxldsp: Nuclei DSP extension present
    ## v: v extension present
    ## v_xxldsp: Nuclei DSP and v extension present
-   make SOC=evalsoc CORE=nx900fd ARCH_EXT=v_xxldsp DOWNLOAD=ilm all
-   make SOC=evalsoc CORE=nx900fd ARCH_EXT=v_xxldsp DOWNLOAD=ilm run_qemu
+   make SOC=evalsoc CORE=nx900fd ARCH_EXT=v_xxldsp DOWNLOAD=ilm all run_qemu
    ~~~~
 
    **run on FPGA Board:**
@@ -97,8 +94,7 @@ TFLM has been ported to Nuclei RISC-V Processor and Nuclei SDK, you can evaluate
 
    ~~~shell
    cd Components/tflm/examples/xxx
-   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm clean all
-   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm upload
+   make SOC=evalsoc CORE=nx900fd DOWNLOAD=ilm clean all upload
    ~~~
 
    Then, result will be printed in the terminal.
@@ -136,18 +132,18 @@ If you met issue like this: `section .text will not fit in region ilm`, this is 
 please use 512K, **if you want to run on hardware, please make sure your cpu bitstream configured with 512K ILM/DLM**.
 
 ```shell
-# file: /path/to/nuclei_sdk/SoC/evalsoc/Board/nuclei_fpga_eval/Source/GCC/gcc_evalsoc_ilm.ld
+# file: /path/to/nuclei_sdk/SoC/evalsoc/Board/nuclei_fpga_eval/Source/GCC/evalsoc.memory
 # Partial as follows:
 
-OUTPUT_ARCH( "riscv" )
+/* ILM Memory Information */
+ILM_MEMORY_PRESENT = 1;
+ILM_MEMORY_BASE = 0x80000000;
+ILM_MEMORY_SIZE = 0x800000;
 
-ENTRY( _start )
-
-MEMORY
-{
-  ilm (rxa!w) : ORIGIN = 0x80000000, LENGTH = 512K  /* change 64K to 512K */
-  ram (wxa!r) : ORIGIN = 0x90000000, LENGTH = 512K  /* change 64K to 512K */
-}
+/* DLM Memory Information */
+DLM_MEMORY_PRESENT = 1;
+DLM_MEMORY_BASE = 0x90000000;
+DLM_MEMORY_SIZE = 0x800000;
 ```
 
 ### Use TFLM in Nuclei Studio IDE
@@ -160,7 +156,7 @@ MEMORY
 
 3. Download the zip package of Nuclei SDK
 
-   > Make sure the version of the SDK should be 0.6.0.
+   > Make sure the version of the SDK should be 0.7.1.
 
    ![install_sdk](doc/images/install_sdk.png)
 
