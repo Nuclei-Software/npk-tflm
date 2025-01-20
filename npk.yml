@@ -3,7 +3,7 @@ name: mwp-nsdk_tflm
 owner: nuclei
 description: tflite-micro component for nuclei sdk
 type: mwp
-version: 0.3.0
+version: 0.4.0
 keywords:
   - tflite-micro
   - ai
@@ -12,7 +12,7 @@ homepage: https://github.com/Nuclei-Software/npk-tflm
 
 dependencies:
   - name: sdk-nuclei_sdk
-    version: 0.6.0
+    version: 0.7.1
 
 packinfo:
   name: tflite-micro for nuclei sdk
@@ -58,7 +58,7 @@ buildconfig:
       - flags: -fno-use-cxa-atexit
       - flags: -fpermissive
       - flags: -fno-rtti
-      - flags: --std=gnu++11
+      - flags: --std=gnu++17
     common_defines:
       - defines: NMSIS_NN
       - defines: TF_LITE_USE_GLOBAL_MIN

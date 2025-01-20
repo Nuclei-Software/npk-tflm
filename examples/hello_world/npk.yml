@@ -4,7 +4,7 @@ owner: nuclei
 description: tflite-micro hello world example for nuclei sdk
 category: tflm application
 type: app
-version: 0.3.0
+version: 0.4.0
 keywords:
   - tflite-micro
   - ai
