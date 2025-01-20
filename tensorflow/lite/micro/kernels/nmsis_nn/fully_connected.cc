@@ -1,4 +1,4 @@
-/* Copyright 2022 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2024 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -116,7 +116,7 @@ TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) {
     TF_LITE_ENSURE_EQ(context, input->params.zero_point, 0);
     TF_LITE_ENSURE_EQ(context, output->params.zero_point, 0);
     buf_size = riscv_fully_connected_s16_get_buffer_size(&filter_dims);
-  } else if (input->type == kTfLiteInt8) {
+  } else if (input->type == kTfLiteInt8 && filter->type != kTfLiteInt4) {
     const RuntimeShape input_shape = GetTensorShape(input);
 
     TFLITE_DCHECK_GE(output_dim_count, 2);
@@ -147,8 +147,8 @@ TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) {
         data->kernel_sums = static_cast<int32_t*>(
             context->AllocatePersistentBuffer(context, buf_size));
 
-        riscv_vector_sum_s8(data->kernel_sums, filter_dims.n,
-                            data->output_depth, filter_data, 1, nullptr);
+        riscv_vector_sum_s8(data->kernel_sums, filter_dims.n, data->output_depth,
+                          filter_data, 1, nullptr);
 
         // Do not request a scratch buffer since using persistent memory
         buf_size = 0;
@@ -319,9 +319,9 @@ TfLiteStatus EvalQuantizedInt8(TfLiteContext* context, TfLiteNode* node,
       ctx.buf = data.kernel_sums;
     } else if (ctx.buf != nullptr) {
       // If behaving like batch matmul we calculate kernel sums in eval.
-      riscv_vector_sum_s8(static_cast<int32_t*>(ctx.buf), filter_dims.n,
-                          data.output_depth,
-                          tflite::micro::GetTensorData<int8_t>(filter), 1, nullptr);
+      riscv_vector_sum_s8(
+          static_cast<int32_t*>(ctx.buf), filter_dims.n, data.output_depth,
+          tflite::micro::GetTensorData<int8_t>(filter), 1, nullptr);
     }
 
     TF_LITE_ENSURE_EQ(

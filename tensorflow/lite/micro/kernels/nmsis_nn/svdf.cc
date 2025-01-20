@@ -1,4 +1,4 @@
-/* Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2024 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -186,15 +186,14 @@ TfLiteStatus NmsisNnPrepareSvdf(TfLiteContext* context, TfLiteNode* node) {
     weights_feature_dims.n = num_filters;
     weights_feature_dims.h = input_size;
 
-    const int32_t buf_size =
-        riscv_svdf_s8_get_buffer_size(&weights_feature_dims);
+    const int32_t buf_size = riscv_svdf_s8_get_buffer_size(&weights_feature_dims);
 
     if (buf_size > 0) {
       data->kernel_sums = static_cast<int32_t*>(
           context->AllocatePersistentBuffer(context, buf_size));
 
       riscv_vector_sum_s8(data->kernel_sums, input_size, num_filters,
-                          GetTensorData<int8_t>(weights_feature), 1, nullptr);
+                        GetTensorData<int8_t>(weights_feature), 1, nullptr);
     }
 
   } else {
@@ -396,7 +395,7 @@ TfLiteStatus EvalSvdfInt8(TfLiteContext* context, TfLiteNode* node) {
   TFLITE_DCHECK((weights_time->type == kTfLiteInt8) ||
                 (weights_time->type == kTfLiteInt16));
   // Because of the TODO mentioned below, the int16 weight data type is not
-  // split into a seperate registration.
+  // split into a separate registration.
   // TODO(#523): remove 16-bit code when no longer needed.
   return EvalIntegerSVDF(context, node, input, weights_feature, weights_time,
                          bias, params, activation_state, output, data);
@@ -405,11 +404,11 @@ TfLiteStatus EvalSvdfInt8(TfLiteContext* context, TfLiteNode* node) {
 }  // namespace
 
 TFLMRegistration Register_SVDF() {
-  return tflite::micro::RegisterOp(Init, PrepareSvdf, EvalSvdf);
+  return tflite::micro::RegisterOp(Init, NmsisNnPrepareSvdf, EvalSvdf);
 }
 
 TFLMRegistration Register_SVDF_INT8() {
-  return tflite::micro::RegisterOp(Init, PrepareSvdf, EvalSvdfInt8);
+  return tflite::micro::RegisterOp(Init, NmsisNnPrepareSvdf, EvalSvdfInt8);
 }
 
 }  // namespace tflite
