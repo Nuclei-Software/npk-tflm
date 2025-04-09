@@ -194,7 +194,7 @@ TfLiteStatus NmsisNnPrepareSvdf(TfLiteContext* context, TfLiteNode* node) {
           context->AllocatePersistentBuffer(context, buf_size));
 
       riscv_vector_sum_s8(data->kernel_sums, input_size, num_filters,
-                          GetTensorData<int8_t>(weights_feature));
+                          GetTensorData<int8_t>(weights_feature), 1, nullptr);
     }
 
   } else {

@@ -148,7 +148,7 @@ TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) {
             context->AllocatePersistentBuffer(context, buf_size));
 
         riscv_vector_sum_s8(data->kernel_sums, filter_dims.n,
-                            data->output_depth, filter_data);
+                            data->output_depth, filter_data, 1, nullptr);
 
         // Do not request a scratch buffer since using persistent memory
         buf_size = 0;
@@ -321,7 +321,7 @@ TfLiteStatus EvalQuantizedInt8(TfLiteContext* context, TfLiteNode* node,
       // If behaving like batch matmul we calculate kernel sums in eval.
       riscv_vector_sum_s8(static_cast<int32_t*>(ctx.buf), filter_dims.n,
                           data.output_depth,
-                          tflite::micro::GetTensorData<int8_t>(filter));
+                          tflite::micro::GetTensorData<int8_t>(filter), 1, nullptr);
     }
 
     TF_LITE_ENSURE_EQ(
