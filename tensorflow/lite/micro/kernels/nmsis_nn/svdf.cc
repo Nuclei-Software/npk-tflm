@@ -31,7 +31,7 @@ limitations under the License.
 namespace tflite {
 namespace {
 
-struct NmsisNnOpDataSvdf {
+struct CmsisNnOpDataSvdf {
   int32_t effective_scale_1_a;
   int32_t effective_scale_2_a;
   // b versions of each scale are kept at int since the numbers are just the
@@ -39,6 +39,9 @@ struct NmsisNnOpDataSvdf {
   int effective_scale_1_b;
   int effective_scale_2_b;
   int scratch_tensor_index;
+#if defined(KERNELS_OPTIMIZED_FOR_SIZE)
+  int scratch_weight_tensor_index;
+#endif
   int scratch_output_tensor_index;
 
   // Cached tensor zero point values for quantized operations.
@@ -50,10 +53,10 @@ struct NmsisNnOpDataSvdf {
 
 void* Init(TfLiteContext* context, const char* buffer, size_t length) {
   TFLITE_DCHECK(context->AllocatePersistentBuffer != nullptr);
-  return context->AllocatePersistentBuffer(context, sizeof(NmsisNnOpDataSvdf));
+  return context->AllocatePersistentBuffer(context, sizeof(CmsisNnOpDataSvdf));
 }
 
-TfLiteStatus NmsisNnPrepareSvdf(TfLiteContext* context, TfLiteNode* node) {
+TfLiteStatus CmsisNnPrepareSvdf(TfLiteContext* context, TfLiteNode* node) {
   TFLITE_DCHECK(node->builtin_data != nullptr);
 
   const auto* params = static_cast<const TfLiteSVDFParams*>(node->builtin_data);
@@ -131,7 +134,7 @@ TfLiteStatus NmsisNnPrepareSvdf(TfLiteContext* context, TfLiteNode* node) {
   TF_LITE_ENSURE_EQ(context, node->inputs->size, 5);
 
   TFLITE_DCHECK(node->user_data != nullptr);
-  NmsisNnOpDataSvdf* data = static_cast<NmsisNnOpDataSvdf*>(node->user_data);
+  CmsisNnOpDataSvdf* data = static_cast<CmsisNnOpDataSvdf*>(node->user_data);
 
   if (input->type == kTfLiteInt8) {
     TF_LITE_ENSURE_EQ(context, weights_feature->type, kTfLiteInt8);
@@ -189,11 +192,25 @@ TfLiteStatus NmsisNnPrepareSvdf(TfLiteContext* context, TfLiteNode* node) {
     const int32_t buf_size = riscv_svdf_s8_get_buffer_size(&weights_feature_dims);
 
     if (buf_size > 0) {
+#if defined(KERNELS_OPTIMIZED_FOR_SPEED)
       data->kernel_sums = static_cast<int32_t*>(
           context->AllocatePersistentBuffer(context, buf_size));
 
       riscv_vector_sum_s8(data->kernel_sums, input_size, num_filters,
-                        GetTensorData<int8_t>(weights_feature), 1, nullptr);
+                        GetTensorData<int8_t>(weights_feature),
+                        -data->input_zero_point,
+                        -data->activation_state_zero_point, nullptr);
+#elif defined(KERNELS_OPTIMIZED_FOR_SIZE)
+      const TfLiteStatus scratch_kernel_status =
+          context->RequestScratchBufferInArena(
+              context, buf_size, &(data->scratch_weight_tensor_index));
+      TF_LITE_ENSURE_OK(context, scratch_kernel_status);
+#else
+      MicroPrintf(
+          "Either KERNELS_OPTIMIZED_FOR_SIZE or KERNELS_OPTIMIZED_FOR_SPEED "
+          "must be defined");
+      return kTfLiteError;
+#endif
     }
 
   } else {
@@ -230,7 +247,7 @@ TfLiteStatus EvalIntegerSVDF(TfLiteContext* context, TfLiteNode* node,
                              const TfLiteSVDFParams* params,
                              TfLiteEvalTensor* activation_state_tensor,
                              TfLiteEvalTensor* output_tensor,
-                             const NmsisNnOpDataSvdf& data) {
+                             const CmsisNnOpDataSvdf& data) {
   nmsis_nn_dims input_dims;
   input_dims.n = input_tensor->dims->data[0];
   input_dims.h = input_tensor->dims->data[1];
@@ -289,7 +306,21 @@ TfLiteStatus EvalIntegerSVDF(TfLiteContext* context, TfLiteNode* node,
   switch (weights_time_tensor->type) {
     case kTfLiteInt8: {
       nmsis_nn_context ctx;
+
+#if defined(KERNELS_OPTIMIZED_FOR_SPEED)
       ctx.buf = data.kernel_sums;
+#elif defined(KERNELS_OPTIMIZED_FOR_SIZE)
+      ctx.buf = static_cast<int32_t*>(
+          context->GetScratchBuffer(context, data.scratch_weight_tensor_index));
+
+      const int input_size = input_tensor->dims->data[1];
+      const int num_filters = weights_feature_tensor->dims->data[0];
+
+      riscv_vector_sum_s8(
+          static_cast<int32_t*>(ctx.buf), input_size, num_filters,
+          tflite::micro::GetTensorData<int8_t>(weights_feature_tensor),
+          -data.input_zero_point, -data.activation_state_zero_point, nullptr);
+#endif
 
       riscv_svdf_s8(
           &ctx, &scratch_ctx, &scratch_output_ctx, &svdf_params,
@@ -330,8 +361,8 @@ TfLiteStatus EvalIntegerSVDF(TfLiteContext* context, TfLiteNode* node,
 TfLiteStatus EvalSvdf(TfLiteContext* context, TfLiteNode* node) {
   auto* params = reinterpret_cast<TfLiteSVDFParams*>(node->builtin_data);
   TFLITE_DCHECK(node->user_data != nullptr);
-  const NmsisNnOpDataSvdf& data =
-      *(static_cast<const NmsisNnOpDataSvdf*>(node->user_data));
+  const CmsisNnOpDataSvdf& data =
+      *(static_cast<const CmsisNnOpDataSvdf*>(node->user_data));
 
   const TfLiteEvalTensor* input =
       tflite::micro::GetEvalInput(context, node, kSvdfInputTensor);
@@ -374,8 +405,8 @@ TfLiteStatus EvalSvdf(TfLiteContext* context, TfLiteNode* node) {
 TfLiteStatus EvalSvdfInt8(TfLiteContext* context, TfLiteNode* node) {
   auto* params = reinterpret_cast<TfLiteSVDFParams*>(node->builtin_data);
   TFLITE_DCHECK(node->user_data != nullptr);
-  const NmsisNnOpDataSvdf& data =
-      *(static_cast<const NmsisNnOpDataSvdf*>(node->user_data));
+  const CmsisNnOpDataSvdf& data =
+      *(static_cast<const CmsisNnOpDataSvdf*>(node->user_data));
 
   const TfLiteEvalTensor* input =
       tflite::micro::GetEvalInput(context, node, kSvdfInputTensor);
@@ -404,11 +435,11 @@ TfLiteStatus EvalSvdfInt8(TfLiteContext* context, TfLiteNode* node) {
 }  // namespace
 
 TFLMRegistration Register_SVDF() {
-  return tflite::micro::RegisterOp(Init, NmsisNnPrepareSvdf, EvalSvdf);
+  return tflite::micro::RegisterOp(Init, CmsisNnPrepareSvdf, EvalSvdf);
 }
 
 TFLMRegistration Register_SVDF_INT8() {
-  return tflite::micro::RegisterOp(Init, NmsisNnPrepareSvdf, EvalSvdfInt8);
+  return tflite::micro::RegisterOp(Init, CmsisNnPrepareSvdf, EvalSvdfInt8);
 }
 
 }  // namespace tflite

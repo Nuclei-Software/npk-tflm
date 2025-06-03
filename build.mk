@@ -24,6 +24,7 @@ CXX_SRCDIRS += $(MIDDLEWARE_TFLM)/tensorflow/lite/core/api \
   $(MIDDLEWARE_TFLM)/tensorflow/lite/micro/kernels/nmsis_nn \
   $(MIDDLEWARE_TFLM)/tensorflow/lite/micro/memory_planner \
   $(MIDDLEWARE_TFLM)/tensorflow/compiler/mlir/lite/schema \
+  $(MIDDLEWARE_TFLM)/tensorflow/compiler/mlir/lite/core/api \
   $(MIDDLEWARE_TFLM)/signal/micro/kernels \
   $(MIDDLEWARE_TFLM)/signal/src \
   $(MIDDLEWARE_TFLM)/signal/src/kiss_fft_wrappers

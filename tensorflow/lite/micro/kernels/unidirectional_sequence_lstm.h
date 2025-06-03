@@ -19,7 +19,7 @@ limitations under the License.
 #include <cstdint>
 
 #include "tensorflow/lite/c/builtin_op_data.h"
-#include "tensorflow/lite/c/common.h"
+#include "tensorflow/lite/micro/micro_common.h"
 #include "tensorflow/lite/kernels/internal/types.h"
 
 namespace tflite {
@@ -30,7 +30,7 @@ namespace tflite {
 // TODO(b/230666079): resolve conflict with xtensa implementation
 TFLMRegistration Register_UNIDIRECTIONAL_SEQUENCE_LSTM();
 
-#if defined(CMSIS_NN)
+#if defined(CMSIS_NN) || defined(NMSIS_NN)
 // Returns a TFLMRegistration struct for kernel variant that only supports
 // int8 activations and int8 weights and uses the latency optimized
 // implementations.

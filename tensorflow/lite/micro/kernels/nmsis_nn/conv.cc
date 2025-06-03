@@ -134,7 +134,7 @@ TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) {
       filter_dims.h, output_dims.w, output_dims.h, input->type,
       &data->reference_op_data));
 
-  // CMSIS_NN allows INT64 or nullptr bias data pointer
+  // NMSIS_NN allows INT64 or nullptr bias data pointer
   if (input->type == kTfLiteInt8 ||
       (input->type == kTfLiteInt16 &&
        (bias_type == kTfLiteInt64 || bias_type == kTfLiteNoType))) {

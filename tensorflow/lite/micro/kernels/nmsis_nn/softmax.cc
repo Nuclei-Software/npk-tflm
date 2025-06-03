@@ -29,7 +29,7 @@ limitations under the License.
 namespace tflite {
 namespace {
 
-struct CMSISNNSoftmaxParams {
+struct NMSISNNSoftmaxParams {
   SoftmaxParams softmax_params;
   int32_t num_rows;
   int32_t row_size;
@@ -38,7 +38,7 @@ struct CMSISNNSoftmaxParams {
 void* Init(TfLiteContext* context, const char* buffer, size_t length) {
   TFLITE_DCHECK(context->AllocatePersistentBuffer != nullptr);
   return context->AllocatePersistentBuffer(context,
-                                           sizeof(CMSISNNSoftmaxParams));
+                                           sizeof(NMSISNNSoftmaxParams));
 }
 
 TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) {
@@ -64,8 +64,8 @@ TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) {
                      "Input data type not supported");
 
   TF_LITE_ENSURE(context, node->user_data != nullptr);
-  CMSISNNSoftmaxParams* op_data =
-      static_cast<CMSISNNSoftmaxParams*>(node->user_data);
+  NMSISNNSoftmaxParams* op_data =
+      static_cast<NMSISNNSoftmaxParams*>(node->user_data);
 
   auto* params = static_cast<TfLiteSoftmaxParams*>(node->builtin_data);
   auto ret_val = CalculateSoftmaxParams(context, input, output, params,
@@ -91,8 +91,8 @@ TfLiteStatus SoftmaxEval(TfLiteContext* context, TfLiteNode* node) {
   TfLiteEvalTensor* output = tflite::micro::GetEvalOutput(context, node, 0);
 
   TFLITE_DCHECK(node->user_data != nullptr);
-  const CMSISNNSoftmaxParams op_data =
-      *static_cast<const CMSISNNSoftmaxParams*>(node->user_data);
+  const NMSISNNSoftmaxParams op_data =
+      *static_cast<const NMSISNNSoftmaxParams*>(node->user_data);
 
   switch (input->type) {
     case kTfLiteFloat32: {
@@ -147,8 +147,8 @@ TfLiteStatus SoftmaxEvalInt8(TfLiteContext* context, TfLiteNode* node) {
   TfLiteEvalTensor* output = tflite::micro::GetEvalOutput(context, node, 0);
 
   TFLITE_DCHECK(node->user_data != nullptr);
-  const CMSISNNSoftmaxParams op_data =
-      *static_cast<const CMSISNNSoftmaxParams*>(node->user_data);
+  const NMSISNNSoftmaxParams op_data =
+      *static_cast<const NMSISNNSoftmaxParams*>(node->user_data);
 
   riscv_softmax_s8(
       tflite::micro::GetTensorData<int8_t>(input), op_data.num_rows,
@@ -164,8 +164,8 @@ TfLiteStatus SoftmaxEvalInt8_Int16(TfLiteContext* context, TfLiteNode* node) {
   TfLiteEvalTensor* output = tflite::micro::GetEvalOutput(context, node, 0);
 
   TFLITE_DCHECK(node->user_data != nullptr);
-  const CMSISNNSoftmaxParams op_data =
-      *static_cast<const CMSISNNSoftmaxParams*>(node->user_data);
+  const NMSISNNSoftmaxParams op_data =
+      *static_cast<const NMSISNNSoftmaxParams*>(node->user_data);
 
   riscv_softmax_s8_s16(
       tflite::micro::GetTensorData<int8_t>(input), op_data.num_rows,
@@ -181,8 +181,8 @@ TfLiteStatus SoftmaxEvalInt16(TfLiteContext* context, TfLiteNode* node) {
   TfLiteEvalTensor* output = tflite::micro::GetEvalOutput(context, node, 0);
 
   TFLITE_DCHECK(node->user_data != nullptr);
-  const CMSISNNSoftmaxParams op_data =
-      *static_cast<const CMSISNNSoftmaxParams*>(node->user_data);
+  const NMSISNNSoftmaxParams op_data =
+      *static_cast<const NMSISNNSoftmaxParams*>(node->user_data);
 
   const nmsis_nn_softmax_lut_s16 softmax_params = {
       .exp_lut = op_data.softmax_params.exp_lut,
